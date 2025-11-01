@@ -1,0 +1,1 @@
+"""SchoolMS Django projekto paketas."""
