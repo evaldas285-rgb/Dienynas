@@ -1,0 +1,27 @@
+{% extends 'diary/base.html' %}
+{% block title %}Tvarkaraštis | Dienynas{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Tvarkaraštis</h1>
+<div class="row g-3">
+  {% for entry in entries %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title">{{ entry.get_weekday_display }}</h5>
+        <p class="card-text">
+          <strong>{{ entry.subject.name }}</strong><br />
+          {{ entry.start_time }} – {{ entry.end_time }}<br />
+          Mokytojas: {{ entry.teacher.user.get_full_name }}<br />
+          Klasė: {{ entry.classroom }}<br />
+          {% if entry.location %}Kabinetas: {{ entry.location }}{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-info">Tvarkaraštis dar nesudarytas.</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

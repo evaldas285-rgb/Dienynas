@@ -1,0 +1,217 @@
+{% extends 'diary/base.html' %}
+{% block title %}Skydelis | Dienynas{% endblock %}
+{% block content %}
+<h1 class="mb-4">Sveiki, {{ user.get_full_name }}!</h1>
+{% if role == 'teacher' %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">Naujausios pamokos</div>
+      <ul class="list-group list-group-flush">
+        {% for lesson in lessons %}
+        <li class="list-group-item">
+          <strong>{{ lesson.subject.name }}</strong><br />
+          {{ lesson.date|date:'Y-m-d' }} · {{ lesson.classroom }}
+        </li>
+        {% empty %}
+        <li class="list-group-item">Nėra suplanuotų pamokų.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">Paskutiniai pažymiai</div>
+      <ul class="list-group list-group-flush">
+        {% for grade in grades %}
+        <li class="list-group-item">
+          <strong>{{ grade.student.user.get_full_name }}</strong>
+          – {{ grade.value }} ({{ grade.lesson.subject.name }})
+        </li>
+        {% empty %}
+        <li class="list-group-item">Kol kas nėra pažymių.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-white">Namų darbai</div>
+      <ul class="list-group list-group-flush">
+        {% for hw in homeworks %}
+        <li class="list-group-item">
+          {{ hw.lesson.subject.name }} – atlikti iki {{ hw.due_date|default:'nenustatyta' }}
+        </li>
+        {% empty %}
+        <li class="list-group-item">Nėra aktyvių namų darbų.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% elif role == 'student' %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">Mano pažymiai</div>
+      <ul class="list-group list-group-flush">
+        {% for grade in grades|slice:':8' %}
+        <li class="list-group-item">
+          <strong>{{ grade.lesson.subject.name }}</strong> – {{ grade.value }}
+          <small class="text-muted d-block">{{ grade.grade_type|title }}</small>
+        </li>
+        {% empty %}
+        <li class="list-group-item">Pažymių dar nėra.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-white">Namų darbai</div>
+      <ul class="list-group list-group-flush">
+        {% for hw in homeworks %}
+        <li class="list-group-item">
+          {{ hw.lesson.subject.name }} – atlikti iki {{ hw.due_date|default:'nenustatyta' }}
+        </li>
+        {% empty %}
+        <li class="list-group-item">Namų darbų nėra.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">Lankomumas</div>
+      <ul class="list-group list-group-flush">
+        {% for entry in attendance %}
+        <li class="list-group-item">
+          {{ entry.lesson.subject.name }} – {{ entry.get_status_display }}
+        </li>
+        {% empty %}
+        <li class="list-group-item">Lankomumo duomenų nėra.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-secondary text-white">Tvarkaraštis</div>
+      <ul class="list-group list-group-flush">
+        {% for item in schedule %}
+        <li class="list-group-item">
+          <strong>{{ item.get_weekday_display }}</strong> – {{ item.subject.name }} {{ item.start_time }}–{{ item.end_time }}
+        </li>
+        {% empty %}
+        <li class="list-group-item">Tvarkaraštis neįvestas.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">Trimestro rezultatai</div>
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Trimestras</th>
+              <th>Dalykas</th>
+              <th>Vidurkis</th>
+              <th>Komentaras</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td>{{ result.trimester.name }}</td>
+              <td>{{ result.subject.name }}</td>
+              <td>{{ result.average }}</td>
+              <td>{{ result.comment|default:'-' }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">Rezultatų dar nėra.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% elif role == 'parent' %}
+<div class="row g-4">
+  {% for child in children %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">{{ child.student.user.get_full_name }}</div>
+      <div class="card-body">
+        <h5 class="card-title">Pažymiai</h5>
+        <ul class="list-group mb-3">
+          {% for grade in child.grades %}
+          <li class="list-group-item">
+            {{ grade.lesson.subject.name }} – {{ grade.value }}
+          </li>
+          {% empty %}
+          <li class="list-group-item">Nėra pažymių.</li>
+          {% endfor %}
+        </ul>
+        <h5 class="card-title">Lankomumas</h5>
+        <ul class="list-group mb-3">
+          {% for entry in child.attendance %}
+          <li class="list-group-item">
+            {{ entry.lesson.subject.name }} – {{ entry.get_status_display }}
+          </li>
+          {% empty %}
+          <li class="list-group-item">Lankomumo duomenų nėra.</li>
+          {% endfor %}
+        </ul>
+        <h5 class="card-title">Trimestro rezultatai</h5>
+        <ul class="list-group">
+          {% for result in child.results %}
+          <li class="list-group-item">
+            {{ result.trimester.name }} – {{ result.subject.name }}: {{ result.average }}
+          </li>
+          {% empty %}
+          <li class="list-group-item">Rezultatų nėra.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-info">Priskirtų vaikų nėra.</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">Mokytojai</div>
+      <ul class="list-group list-group-flush">
+        {% for teacher in teachers %}
+        <li class="list-group-item">{{ teacher.user.get_full_name }}</li>
+        {% empty %}
+        <li class="list-group-item">Mokytojų nėra.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">Mokiniai</div>
+      <ul class="list-group list-group-flush">
+        {% for student in students %}
+        <li class="list-group-item">{{ student.user.get_full_name }} – {{ student.classroom }}</li>
+        {% empty %}
+        <li class="list-group-item">Mokinių nėra.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

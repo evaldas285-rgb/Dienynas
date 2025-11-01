@@ -1,0 +1,1 @@
+"""Dienyno aplikacijos paketas."""

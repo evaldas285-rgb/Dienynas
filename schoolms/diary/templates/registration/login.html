@@ -1,0 +1,26 @@
+{% extends 'diary/base.html' %}
+{% block title %}Prisijungimas | Dienynas{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-3 text-center">Prisijungimas</h1>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="mb-3">
+            <label class="form-label" for="id_username">Naudotojo vardas</label>
+            {{ form.username.as_widget(attrs={'class': 'form-control'}) }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="id_password">Slaptažodis</label>
+            {{ form.password.as_widget(attrs={'class': 'form-control'}) }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Prisijungti</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

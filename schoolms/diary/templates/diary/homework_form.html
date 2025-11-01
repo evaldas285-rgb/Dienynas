@@ -1,0 +1,24 @@
+{% extends 'diary/base.html' %}
+{% block title %}Nauji namų darbai | Dienynas{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Skirti namų darbus</h1>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Išsaugoti</button>
+      <a href="{% url 'diary:dashboard' %}" class="btn btn-outline-secondary">Atšaukti</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
